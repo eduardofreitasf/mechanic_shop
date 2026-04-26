@@ -1,2 +1,3 @@
-# mechanic_shop
-Management system for a mechanic shop
+# Mechanic Shop
+
+Management system for a mechanic shop.
