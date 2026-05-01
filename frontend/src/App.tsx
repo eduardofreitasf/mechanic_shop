@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Search, Plus, Phone, User, Users, Wrench, Car, Hash, Info, Calendar, ClipboardList, PlusCircle, Trash2, ArrowLeft, Clock, FileText, DollarSign } from 'lucide-react';
+import { Search, Plus, Phone, User, Users, Wrench, Car, Hash, Info, Calendar, ClipboardList, PlusCircle, Trash2, ArrowLeft, Clock, FileText, DollarSign, LayoutDashboard, TrendingUp, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ServiceItem {
   id?: string;
@@ -41,7 +42,7 @@ interface Client {
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'clients' | 'vehicles' | 'service-orders'>('clients');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'clients' | 'vehicles' | 'service-orders'>('dashboard');
 
   const [clients, setClients] = useState<Client[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -79,31 +80,31 @@ function App() {
   const [orderItems, setOrderItems] = useState<ServiceItem[]>([{ description: '', price: 0 }]);
 
   const fetchClients = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:3000/clients', { params: { query: search } });
-      setClients(data);
-    } catch (error) { console.error('Failed to fetch clients:', error); }
+    try { const { data } = await axios.get('http://localhost:3000/clients', { params: { query: search } }); setClients(data); } 
+    catch (error) { console.error('Failed to fetch clients:', error); }
   };
 
   const fetchVehicles = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:3000/vehicles', { params: { query: search } });
-      setVehicles(data);
-    } catch (error) { console.error('Failed to fetch vehicles:', error); }
+    try { const { data } = await axios.get('http://localhost:3000/vehicles', { params: { query: search } }); setVehicles(data); } 
+    catch (error) { console.error('Failed to fetch vehicles:', error); }
   };
 
   const fetchServiceOrders = async () => {
-    try {
-      const { data } = await axios.get('http://localhost:3000/service-orders');
-      setServiceOrders(data);
-    } catch (error) { console.error('Failed to fetch service orders:', error); }
+    try { const { data } = await axios.get('http://localhost:3000/service-orders'); setServiceOrders(data); } 
+    catch (error) { console.error('Failed to fetch service orders:', error); }
   };
 
   useEffect(() => {
-    if (activeTab === 'clients') fetchClients();
-    else if (activeTab === 'vehicles') fetchVehicles();
-    else if (activeTab === 'service-orders') {
-      if (orderView === 'list') fetchServiceOrders();
+    if (activeTab === 'dashboard') {
+      fetchClients();
+      fetchVehicles();
+      fetchServiceOrders();
+    } else if (activeTab === 'clients') {
+      fetchClients();
+    } else if (activeTab === 'vehicles') {
+      fetchVehicles();
+    } else if (activeTab === 'service-orders' && orderView === 'list') {
+      fetchServiceOrders();
     }
   }, [search, activeTab, orderView]);
 
@@ -138,7 +139,6 @@ function App() {
         observation: orderObservation,
         items: orderItems,
       });
-      // Reset form
       setOrderClientId(''); setOrderVehicleId(''); setOrderMileage(''); setOrderLabourHours(''); setOrderObservation(''); setOrderItems([{ description: '', price: 0 }]);
       setOrderView('list');
     } catch (error) { console.error('Failed to create service order:', error); }
@@ -185,29 +185,63 @@ function App() {
 
   const clientVehicles = useMemo(() => vehicles.filter(v => v.ownerId === orderClientId), [vehicles, orderClientId]);
 
+  // Dashboard Statistics
+  const totalRevenue = useMemo(() => serviceOrders.reduce((acc, order) => acc + order.totalPrice, 0), [serviceOrders]);
+  
+  // Chart Data: Last 7 Days Revenue
+  const chartData = useMemo(() => {
+    const days = 7;
+    const data = [];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const targetDate = new Date(today);
+      targetDate.setDate(targetDate.getDate() - i);
+      const dateStr = targetDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      
+      const revenue = serviceOrders.reduce((sum, order) => {
+        const orderDate = new Date(order.createdAt);
+        if (orderDate.toDateString() === targetDate.toDateString()) {
+          return sum + order.totalPrice;
+        }
+        return sum;
+      }, 0);
+
+      data.push({ name: dateStr, revenue });
+    }
+    return data;
+  }, [serviceOrders]);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-slate-900 text-white flex flex-col hidden md:flex shrink-0">
+      <aside className="w-full md:w-64 bg-slate-900 text-white flex flex-col hidden md:flex shrink-0 shadow-2xl z-10">
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div className="bg-indigo-500 p-2 rounded-lg"><Wrench size={24} className="text-white" /></div>
+          <div className="bg-indigo-500 p-2 rounded-lg shadow-lg shadow-indigo-500/30"><Wrench size={24} className="text-white" /></div>
           <span className="text-xl font-bold tracking-wide">MechanicPro</span>
         </div>
         <nav className="flex-1 p-4">
-          <ul className="space-y-2">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-2">Menu</div>
+          <ul className="space-y-1.5">
             <li>
-              <button onClick={() => { setActiveTab('clients'); setSearch(''); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'clients' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
-                <Users size={20} /> Clients
+              <button onClick={() => { setActiveTab('dashboard'); setSearch(''); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'dashboard' ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+                <LayoutDashboard size={20} className={activeTab === 'dashboard' ? 'text-indigo-200' : ''} /> Dashboard
               </button>
             </li>
             <li>
-              <button onClick={() => { setActiveTab('vehicles'); setSearch(''); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'vehicles' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
-                <Car size={20} /> Vehicles
+              <button onClick={() => { setActiveTab('clients'); setSearch(''); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'clients' ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+                <Users size={20} className={activeTab === 'clients' ? 'text-indigo-200' : ''} /> Clients
               </button>
             </li>
             <li>
-              <button onClick={() => { setActiveTab('service-orders'); setSearch(''); setOrderView('list'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'service-orders' ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
-                <ClipboardList size={20} /> Service Orders
+              <button onClick={() => { setActiveTab('vehicles'); setSearch(''); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'vehicles' ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+                <Car size={20} className={activeTab === 'vehicles' ? 'text-indigo-200' : ''} /> Vehicles
+              </button>
+            </li>
+            <li>
+              <button onClick={() => { setActiveTab('service-orders'); setSearch(''); setOrderView('list'); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'service-orders' ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+                <ClipboardList size={20} className={activeTab === 'service-orders' ? 'text-indigo-200' : ''} /> Service Orders
               </button>
             </li>
           </ul>
@@ -217,15 +251,17 @@ function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
+        <header className="bg-white border-b border-slate-200 px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 z-0">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
+              {activeTab === 'dashboard' && 'Dashboard Overview'}
               {activeTab === 'clients' && 'Clients Management'}
               {activeTab === 'vehicles' && 'Vehicles Management'}
               {activeTab === 'service-orders' && orderView === 'list' && 'Service Orders'}
               {activeTab === 'service-orders' && orderView === 'create' && 'Register Service Order'}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
+              {activeTab === 'dashboard' && 'Welcome back. Here is what is happening in your shop today.'}
               {activeTab === 'clients' && 'Manage your customer base and contact info.'}
               {activeTab === 'vehicles' && 'Manage the vehicles registered in the shop.'}
               {activeTab === 'service-orders' && orderView === 'list' && 'Track and view all past services.'}
@@ -233,7 +269,7 @@ function App() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            {!(activeTab === 'service-orders' && orderView === 'create') && (
+            {(activeTab === 'clients' || activeTab === 'vehicles' || (activeTab === 'service-orders' && orderView === 'list')) && (
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input type="text" placeholder={`Search ${activeTab}...`} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-4 py-2.5 bg-slate-100 border-transparent rounded-xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all w-64 shadow-sm" />
@@ -247,15 +283,128 @@ function App() {
                 <ArrowLeft size={18} /> Back to List
               </button>
             )}
+            {activeTab === 'dashboard' && (
+              <button onClick={() => { setActiveTab('service-orders'); setOrderView('create'); }} className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-sm shadow-indigo-200 whitespace-nowrap"><Plus size={18} /> Quick Order</button>
+            )}
           </div>
         </header>
 
         {/* Content Body */}
         <div className="flex-1 overflow-auto p-8 relative">
           
+          {/* Dashboard View */}
+          {activeTab === 'dashboard' && (
+            <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-300">
+              {/* Stat Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden group">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 relative z-10">
+                    <DollarSign size={28} />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-medium text-slate-500 mb-1">Total Revenue</p>
+                    <h3 className="text-2xl font-bold text-slate-900">€{totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden group">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 relative z-10">
+                    <ClipboardList size={28} />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-medium text-slate-500 mb-1">Service Orders</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{serviceOrders.length}</h3>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden group">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0 relative z-10">
+                    <Car size={28} />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-medium text-slate-500 mb-1">Vehicles</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{vehicles.length}</h3>
+                  </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden group">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-purple-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                  <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center shrink-0 relative z-10">
+                    <Users size={28} />
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-sm font-medium text-slate-500 mb-1">Clients</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{clients.length}</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Chart */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
+                  <div className="flex items-center gap-2 mb-6">
+                    <TrendingUp className="text-indigo-500" size={20} />
+                    <h3 className="text-lg font-bold text-slate-800">Revenue (Last 7 Days)</h3>
+                  </div>
+                  <div className="h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(value) => `€${value}`} />
+                        <Tooltip 
+                          cursor={{fill: '#f8fafc'}}
+                          contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                          formatter={(value: number) => [`€${value.toFixed(2)}`, 'Revenue']}
+                        />
+                        <Bar dataKey="revenue" fill="#6366f1" radius={[6, 6, 0, 0]} maxBarSize={50} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                  <div className="flex items-center gap-2 mb-6">
+                    <Activity className="text-emerald-500" size={20} />
+                    <h3 className="text-lg font-bold text-slate-800">Recent Services</h3>
+                  </div>
+                  <div className="flex-1 overflow-auto">
+                    {serviceOrders.length > 0 ? (
+                      <div className="space-y-4">
+                        {serviceOrders.slice(0, 5).map((order) => (
+                          <div key={order.id} onClick={() => setSelectedOrder(order)} className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-100">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-medium">
+                                {order.vehicle?.owner?.name.charAt(0) || '?'}
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-900 text-sm">{order.vehicle?.owner?.name}</p>
+                                <p className="text-xs text-slate-500">{order.vehicle?.licensePlate}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-emerald-600 text-sm">€{order.totalPrice.toFixed(2)}</p>
+                              <p className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 pb-8">
+                        <ClipboardList size={32} className="opacity-20" />
+                        <p className="text-sm">No recent orders found</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tables (Clients / Vehicles / Service Orders List) */}
           {((activeTab === 'clients') || (activeTab === 'vehicles') || (activeTab === 'service-orders' && orderView === 'list')) && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-200">
               <table className="w-full text-left border-collapse">
                 <thead>
                   {activeTab === 'clients' && (
@@ -312,7 +461,7 @@ function App() {
 
           {/* Create Order Page */}
           {activeTab === 'service-orders' && orderView === 'create' && (
-            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-200">
               <form onSubmit={handleCreateServiceOrder} className="p-8">
                 
                 <h3 className="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2"><Car size={20} className="text-indigo-600"/> Vehicle Information</h3>
