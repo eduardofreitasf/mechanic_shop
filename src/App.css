@@ -147,6 +147,21 @@ body {
   display: inline-flex;
 }
 
+.btn.edit {
+  background-color: transparent;
+  color: var(--primary);
+  padding: 8px;
+  box-shadow: none;
+  display: inline-flex;
+}
+
+.btn.edit:hover {
+  background-color: #e0f2fe;
+  transform: none;
+  box-shadow: none;
+}
+
+
 .btn.danger:hover {
   background-color: #fee2e2;
   transform: none;

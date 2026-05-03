@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Trash2, Users, X } from "lucide-react";
+import { Search, Plus, Trash2, Users, X, Edit } from "lucide-react";
 import { clientService } from "../services/clientService";
 import { Client } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -8,8 +8,11 @@ export function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newPhone, setNewPhone] = useState("");
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
   const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -26,16 +29,40 @@ export function ClientsPage() {
     loadClients();
   }, [search]);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingClient(null);
+    setName("");
+    setPhone("");
+    setError(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (client: Client) => {
+    setEditingClient(client);
+    setName(client.name);
+    setPhone(client.phone || "");
+    setError(null);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingClient(null);
+    setError(null);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName.trim()) return;
+    if (!name.trim()) return;
     setError(null);
 
     try {
-      await clientService.createClient(newName, newPhone);
-      setNewName("");
-      setNewPhone("");
-      setIsModalOpen(false);
+      if (editingClient) {
+        await clientService.updateClient(editingClient.id, name, phone);
+      } else {
+        await clientService.createClient(name, phone);
+      }
+      closeModal();
       loadClients();
     } catch (err: any) {
       setError(err.message === "A client with this name already exists." ? "Já existe um cliente com este nome." : (err.message || "Ocorreu um erro"));
@@ -68,7 +95,7 @@ export function ClientsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button className="btn" onClick={() => setIsModalOpen(true)}>
+          <button className="btn" onClick={openCreateModal}>
             <Plus size={18} />
             Adicionar Cliente
           </button>
@@ -93,6 +120,13 @@ export function ClientsPage() {
                 <td>{client.phone || <span style={{ color: "var(--text-muted)" }}>Nenhum</span>}</td>
                 <td className="actions-cell">
                   <button
+                    className="btn edit"
+                    onClick={() => openEditModal(client)}
+                    title="Editar Cliente"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button
                     className="btn danger"
                     onClick={() => setDeleteId(client.id)}
                     title="Eliminar Cliente"
@@ -113,18 +147,18 @@ export function ClientsPage() {
       </div>
 
       {isModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2>Novo Cliente</h2>
+              <h2>{editingClient ? "Editar Cliente" : "Novo Cliente"}</h2>
               <button 
-                onClick={() => setIsModalOpen(false)} 
+                onClick={closeModal} 
                 style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
               >
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleCreate}>
+            <form onSubmit={handleSave}>
               {error && (
                 <div style={{ color: 'var(--danger)', background: '#fee2e2', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
                   {error}
@@ -137,8 +171,8 @@ export function ClientsPage() {
                   className="form-input"
                   required
                   placeholder="Nome completo"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   autoFocus
                 />
               </div>
@@ -148,16 +182,16 @@ export function ClientsPage() {
                   type="text"
                   className="form-input"
                   placeholder="Ex: 912 345 678"
-                  value={newPhone}
-                  onChange={(e) => setNewPhone(e.target.value)}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
+                <button type="button" className="btn-secondary" onClick={closeModal}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn">
-                  Guardar Cliente
+                  {editingClient ? "Guardar Alterações" : "Guardar Cliente"}
                 </button>
               </div>
             </form>
