@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Users, Car, Wrench, TrendingUp, DollarSign } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Users, Car, Wrench, TrendingUp, DollarSign, Plus } from "lucide-react";
 import { dashboardService, DashboardStats } from "../services/dashboardService";
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -7,6 +8,7 @@ import {
 } from 'recharts';
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,9 +27,10 @@ export function DashboardPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <header className="header">
         <h1>Visão Geral</h1>
-        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Bem-vindo de volta! Aqui está o que está a acontecer na sua oficina.
-        </div>
+        <button className="btn" onClick={() => navigate("/services/new")}>
+            <Plus size={18} />
+            Registar Serviço
+          </button>
       </header>
 
       {/* Stats Grid */}
