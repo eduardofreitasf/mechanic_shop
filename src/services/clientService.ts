@@ -4,13 +4,15 @@ export const clientService = {
   async getClients(search: string = ""): Promise<Client[]> {
     const db = await getDb();
     let query = "SELECT * FROM clients WHERE deleted_at IS NULL";
-    let params: any[] = [];
-    if (search.trim() !== "") {
-      query += " AND (name LIKE ? OR phone LIKE ?)";
-      const searchParam = `%${search.trim()}%`;
-      params.push(searchParam, searchParam);
+    const params: any[] = [];
+
+    if (search) {
+      query += " AND name LIKE ?";
+      params.push(`%${search}%`);
     }
-    query += " ORDER BY id DESC";
+
+    query += " ORDER BY name";
+
     return await db.select<Client[]>(query, params);
   },
 
