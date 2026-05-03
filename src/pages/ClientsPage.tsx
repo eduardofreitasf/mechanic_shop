@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Trash2, Users, X, Edit } from "lucide-react";
+import { Search, Plus, Trash2, Users, Edit } from "lucide-react";
 import { clientService } from "../services/clientService";
 import { Client } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { ClientModal } from "../components/ClientModal";
 
 export function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-
-  const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadClients = async () => {
@@ -31,42 +27,12 @@ export function ClientsPage() {
 
   const openCreateModal = () => {
     setEditingClient(null);
-    setName("");
-    setPhone("");
-    setError(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (client: Client) => {
     setEditingClient(client);
-    setName(client.name);
-    setPhone(client.phone || "");
-    setError(null);
     setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingClient(null);
-    setError(null);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setError(null);
-
-    try {
-      if (editingClient) {
-        await clientService.updateClient(editingClient.id, name, phone);
-      } else {
-        await clientService.createClient(name, phone);
-      }
-      closeModal();
-      loadClients();
-    } catch (err: any) {
-      setError(err.message === "A client with this name already exists." ? "Já existe um cliente com este nome." : (err.message || "Ocorreu um erro"));
-    }
   };
 
   const handleDelete = async () => {
@@ -97,7 +63,7 @@ export function ClientsPage() {
           </div>
           <button className="btn" onClick={openCreateModal}>
             <Plus size={18} />
-            Adicionar Cliente
+            Registar Cliente
           </button>
         </div>
       </header>
@@ -144,58 +110,13 @@ export function ClientsPage() {
         )}
       </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2>{editingClient ? "Editar Cliente" : "Novo Cliente"}</h2>
-              <button 
-                onClick={closeModal} 
-                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleSave}>
-              {error && (
-                <div style={{ color: 'var(--danger)', background: '#fee2e2', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
-                  {error}
-                </div>
-              )}
-              <div className="form-group">
-                <label>Nome</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  required
-                  placeholder="Nome completo"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoFocus
-                />
-              </div>
-              <div className="form-group">
-                <label>Telefone (Opcional)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Ex: 912 345 678"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={closeModal}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn">
-                  {editingClient ? "Guardar Alterações" : "Guardar Cliente"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ClientModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={loadClients} 
+        client={editingClient} 
+      />
+
        <ConfirmModal 
         isOpen={deleteId !== null}
         onClose={() => setDeleteId(null)}

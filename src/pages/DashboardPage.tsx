@@ -6,17 +6,27 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   AreaChart, Area, BarChart, Bar, Cell
 } from 'recharts';
+import { ClientModal } from "../components/ClientModal";
+import { VehicleModal } from "../components/VehicleModal";
 
 export function DashboardPage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadStats = () => {
+    setLoading(true);
     dashboardService.getStats().then(res => {
       setStats(res);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    loadStats();
   }, []);
 
   if (loading || !stats) {
@@ -32,10 +42,20 @@ export function DashboardPage() {
           <h1>Dashboard</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Estatísticas e visão geral da oficina.</p>
         </div>
-        <button className="btn" onClick={() => navigate("/services/new")}>
-          <Plus size={18} />
-          Registar Serviço
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn" onClick={() => setIsClientModalOpen(true)}>
+            <Plus size={18} />
+            Registar Cliente
+          </button>
+          <button className="btn" onClick={() => setIsVehicleModalOpen(true)}>
+            <Plus size={18} />
+            Registar Veículo
+          </button>
+          <button className="btn" onClick={() => navigate("/services/new")}>
+            <Plus size={18} />
+            Registar Serviço
+          </button>
+        </div>
       </header>
 
       {/* Stats Grid */}
@@ -196,6 +216,17 @@ export function DashboardPage() {
           </tbody>
         </table>
       </div>
+
+      <ClientModal 
+        isOpen={isClientModalOpen} 
+        onClose={() => setIsClientModalOpen(false)} 
+        onSuccess={loadStats} 
+      />
+      <VehicleModal 
+        isOpen={isVehicleModalOpen} 
+        onClose={() => setIsVehicleModalOpen(false)} 
+        onSuccess={loadStats} 
+      />
     </div>
   );
 }
@@ -223,5 +254,3 @@ function StatCard({ title, value, icon, color }: { title: string; value: string 
     </div>
   );
 }
-
-

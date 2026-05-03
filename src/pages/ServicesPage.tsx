@@ -52,7 +52,7 @@ export function ServicesPage() {
           </div>
           <button className="btn" onClick={() => navigate("/services/new")}>
             <Plus size={18} />
-            Nova Ordem
+            Registar Serviço
           </button>
         </div>
       </header>
