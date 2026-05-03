@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Car, Wrench } from "lucide-react";
+import { LayoutDashboard, Users, Car, Wrench, FileDown, Upload } from "lucide-react";
 
 export function Sidebar() {
   return (
@@ -25,7 +25,17 @@ export function Sidebar() {
           <Wrench size={20} />
           <span>Serviços</span>
         </NavLink>
+        <NavLink to="/import" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <Upload size={20} />
+          <span>Importar</span>
+        </NavLink>
+        <NavLink to="/export" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+          <FileDown size={20} />
+          <span>Exportar</span>
+        </NavLink>
       </nav>
     </aside>
   );
 }
+
+

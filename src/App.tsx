@@ -6,6 +6,8 @@ import { VehiclesPage } from "./pages/VehiclesPage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { CreateServiceOrderPage } from "./pages/CreateServiceOrderPage";
 import { ServiceOrderDetailsPage } from "./pages/ServiceOrderDetailsPage";
+import { ExportPage } from "./pages/ExportPage";
+import { ImportPage } from "./pages/ImportPage";
 import "./App.css";
 
 function App() {
@@ -19,10 +21,14 @@ function App() {
           <Route path="services" element={<ServicesPage />} />
           <Route path="services/new" element={<CreateServiceOrderPage />} />
           <Route path="services/:id" element={<ServiceOrderDetailsPage />} />
+          <Route path="import" element={<ImportPage />} />
+          <Route path="export" element={<ExportPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
+
 export default App;
+
