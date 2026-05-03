@@ -61,7 +61,6 @@ export function ServicesPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Data</th>
               <th>Veículo</th>
               <th>Cliente</th>
@@ -76,7 +75,6 @@ export function ServicesPage() {
                 onClick={() => navigate(`/services/${order.id}`)}
                 style={{ cursor: 'pointer' }}
               >
-                <td>#{order.id}</td>
                 <td>{new Date(order.created_at).toLocaleDateString('pt-PT')}</td>
                 <td style={{ fontWeight: 700 }}>{order.vehicle_plate}</td>
                 <td>{order.client_name}</td>

@@ -106,7 +106,6 @@ export function ClientsPage() {
         <table className="table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Nome</th>
               <th>Telefone</th>
               <th className="actions-cell">Ações</th>
@@ -115,7 +114,6 @@ export function ClientsPage() {
           <tbody>
             {clients.map((client) => (
               <tr key={client.id}>
-                <td>{client.id}</td>
                 <td style={{ fontWeight: 500 }}>{client.name}</td>
                 <td>{client.phone || <span style={{ color: "var(--text-muted)" }}>Nenhum</span>}</td>
                 <td className="actions-cell">

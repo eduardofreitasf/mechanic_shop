@@ -44,12 +44,12 @@ export function ServiceOrderDetailsPage() {
           <button className="btn-secondary" onClick={() => navigate("/services")} style={{ padding: '8px' }}>
             <ArrowLeft size={20} />
           </button>
-          <h1 style={{ margin: 0 }}>Ordem de Serviço #{order.id}</h1>
+          <h1 style={{ margin: 0 }}>Ordem de Serviço</h1>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button className="btn-secondary" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Printer size={18} />
-            <span>Exportar PDF</span>
+            <span>Imprimir PDF</span>
           </button>
           <button className="btn danger" onClick={() => setIsDeleteModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Trash2 size={18} />
