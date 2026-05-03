@@ -16,7 +16,7 @@ export const serviceOrderService = {
       const searchParam = `%${search.trim()}%`;
       params.push(searchParam, searchParam, searchParam);
     }
-    query += " ORDER BY so.id DESC";
+    query += " ORDER BY so.created_at DESC";
     return await db.select<ServiceOrder[]>(query, params);
   },
 

@@ -40,9 +40,6 @@ export function ConfirmModal({
             </div>
             <h2 style={{ margin: 0, fontSize: '1.25rem' }}>{title}</h2>
           </div>
-          <button className="btn-icon" onClick={onClose}>
-            <X size={20} />
-          </button>
         </header>
 
         <div style={{ padding: '20px 0', color: 'var(--text-muted)', lineHeight: '1.5' }}>
