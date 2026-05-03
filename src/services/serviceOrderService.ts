@@ -1,7 +1,7 @@
 import { getDb, ServiceOrder, ServiceOperation } from "../db";
 
 export const serviceOrderService = {
-  async getServiceOrders(search: string = ""): Promise<ServiceOrder[]> {
+  async getServiceOrders(search: string = "", sortOrder: "ASC" | "DESC" = "DESC"): Promise<ServiceOrder[]> {
     const db = await getDb();
     let query = `
       SELECT so.*, v.plate as vehicle_plate, c.name as client_name
@@ -16,7 +16,7 @@ export const serviceOrderService = {
       const searchParam = `%${search.trim()}%`;
       params.push(searchParam, searchParam, searchParam);
     }
-    query += " ORDER BY so.created_at DESC";
+    query += ` ORDER BY so.created_at ${sortOrder}`;
     return await db.select<ServiceOrder[]>(query, params);
   },
 
