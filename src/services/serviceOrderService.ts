@@ -72,6 +72,22 @@ export const serviceOrderService = {
     }
   },
 
+  async getVehicleHistory(vehicleId: number): Promise<ServiceOrder[]> {
+    const db = await getDb();
+    const orders = await db.select<ServiceOrder[]>(
+      `SELECT * FROM service_orders 
+       WHERE vehicle_id = ? AND deleted_at IS NULL 
+       ORDER BY created_at DESC`,
+      [vehicleId]
+    );
+
+    for (const order of orders) {
+      order.operations = await this.getOperations(order.id);
+    }
+
+    return orders;
+  },
+
   async getOperations(serviceOrderId: number): Promise<ServiceOperation[]> {
     const db = await getDb();
     return await db.select<ServiceOperation[]>(

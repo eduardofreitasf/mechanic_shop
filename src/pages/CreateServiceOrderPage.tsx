@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, PlusCircle} from "lucide-react";
+import { ArrowLeft, Save, PlusCircle, History } from "lucide-react";
 import { serviceOrderService } from "../services/serviceOrderService";
 import { clientService } from "../services/clientService";
 import { vehicleService } from "../services/vehicleService";
 import { ServiceOperation, Client, Vehicle } from "../db";
+import { VehicleHistoryOverlay } from "../components/VehicleHistoryOverlay";
 
 export function CreateServiceOrderPage() {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ export function CreateServiceOrderPage() {
   const [operations, setOperations] = useState<ServiceOperation[]>(
     Array(10).fill(null).map(() => ({ description: "", price: 0 }))
   );
+
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   useEffect(() => {
     clientService.getClients().then(setClients);
@@ -76,6 +79,8 @@ export function CreateServiceOrderPage() {
     }
   };
 
+  const selectedVehicle = vehicles.find(v => v.id === parseInt(selectedVehicleId));
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header className="header">
@@ -110,7 +115,18 @@ export function CreateServiceOrderPage() {
               </select>
             </div>
             <div className="form-group">
-              <label>Veículo</label>
+              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                Veículo
+                {selectedVehicleId && (
+                  <button 
+                    type="button" 
+                    onClick={() => setIsHistoryOpen(true)}
+                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <History size={14} /> Ver Histórico
+                  </button>
+                )}
+              </label>
               <select className="form-input" style={{ width: '100%' }} required disabled={!selectedClientId} value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)}>
                 <option value="">Selecionar Veículo</option>
                 {vehicles.map(v => <option key={v.id} value={v.id}>{v.plate} ({v.brand} {v.model})</option>)}
@@ -234,6 +250,14 @@ export function CreateServiceOrderPage() {
           </div>
         </div>
       </div>
+
+      <VehicleHistoryOverlay 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+        vehicleId={parseInt(selectedVehicleId)} 
+        vehiclePlate={selectedVehicle?.plate || ""}
+      />
     </div>
   );
 }
+
