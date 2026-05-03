@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Trash2, Wrench } from "lucide-react";
+import { Search, Plus, Trash2, Wrench, ArrowUpDown } from "lucide-react";
 import { serviceOrderService } from "../services/serviceOrderService";
 import { ServiceOrder } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
@@ -9,11 +9,12 @@ export function ServicesPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadOrders = async () => {
     try {
-      const result = await serviceOrderService.getServiceOrders(search);
+      const result = await serviceOrderService.getServiceOrders(search, sortOrder);
       setOrders(result);
     } catch (err) {
       console.error("Erro ao carregar ordens de serviço", err);
@@ -22,7 +23,7 @@ export function ServicesPage() {
 
   useEffect(() => {
     loadOrders();
-  }, [search]);
+  }, [search, sortOrder]);
 
   const handleDelete = async () => {
     if (deleteId === null) return;
@@ -50,12 +51,27 @@ export function ServicesPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+          
+          <div className="input-group">
+            <ArrowUpDown className="input-icon" size={18} />
+            <select 
+              className="input" 
+              style={{ width: "180px", cursor: "pointer", appearance: "none" }}
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "ASC" | "DESC")}
+            >
+              <option value="DESC">Mais Recente</option>
+              <option value="ASC">Mais Antigo</option>
+            </select>
+          </div>
+
           <button className="btn" onClick={() => navigate("/services/new")}>
             <Plus size={18} />
             Registar Serviço
           </button>
         </div>
       </header>
+
 
       <div className="card">
         <table className="table">
