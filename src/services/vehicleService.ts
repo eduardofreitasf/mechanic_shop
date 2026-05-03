@@ -52,5 +52,23 @@ export const vehicleService = {
       "SELECT * FROM vehicles WHERE client_id = ? AND deleted_at IS NULL",
       [clientId]
     );
+  },
+
+  async updateVehicle(id: number, clientId: number, plate: string, brand: string, model: string, year: number | null): Promise<void> {
+    const db = await getDb();
+    const formattedPlate = plate.trim().toUpperCase();
+
+    const existing = await db.select<any[]>(
+      "SELECT id FROM vehicles WHERE plate = ? AND id != ? AND deleted_at IS NULL",
+      [formattedPlate, id]
+    );
+    if (existing.length > 0) {
+      throw new Error("A vehicle with this license plate already exists.");
+    }
+
+    await db.execute(
+      "UPDATE vehicles SET client_id = ?, plate = ?, brand = ?, model = ?, year = ? WHERE id = ?",
+      [clientId, formattedPlate, brand.trim(), model.trim(), year, id]
+    );
   }
 };

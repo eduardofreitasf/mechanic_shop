@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Trash2, Car, X } from "lucide-react";
+import { Search, Plus, Trash2, Car, X, Edit } from "lucide-react";
 import { vehicleService } from "../services/vehicleService";
 import { clientService } from "../services/clientService";
 import { Vehicle, Client } from "../db";
@@ -10,6 +10,7 @@ export function VehiclesPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
   // Form state
   const [clientId, setClientId] = useState<string>("");
@@ -37,28 +38,58 @@ export function VehiclesPage() {
     loadData();
   }, [search]);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const openCreateModal = () => {
+    setEditingVehicle(null);
+    setClientId("");
+    setPlate("");
+    setBrand("");
+    setModel("");
+    setYear("");
+    setError(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setClientId(vehicle.client_id.toString());
+    setPlate(vehicle.plate);
+    setBrand(vehicle.brand);
+    setModel(vehicle.model);
+    setYear(vehicle.year?.toString() || "");
+    setError(null);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingVehicle(null);
+    setError(null);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientId || !plate || !brand || !model) return;
     setError(null);
 
     try {
-      await vehicleService.createVehicle(
-        parseInt(clientId),
+      const vehicleData = {
+        clientId: parseInt(clientId),
         plate,
         brand,
         model,
-        year ? parseInt(year) : null
-      );
-      setClientId("");
-      setPlate("");
-      setBrand("");
-      setModel("");
-      setYear("");
-      setIsModalOpen(false);
+        year: year ? parseInt(year) : null
+      };
+
+      if (editingVehicle) {
+        await vehicleService.updateVehicle(editingVehicle.id, vehicleData.clientId, vehicleData.plate, vehicleData.brand, vehicleData.model, vehicleData.year);
+      } else {
+        await vehicleService.createVehicle(vehicleData.clientId, vehicleData.plate, vehicleData.brand, vehicleData.model, vehicleData.year);
+      }
+      
+      closeModal();
       loadData();
     } catch (err: any) {
-      setError(err.message === "A vehicle with this license plate already exists." ? "Já existe um veículo com esta matrícula." : (err.message || "Erro ao criar veículo"));
+      setError(err.message === "A vehicle with this license plate already exists." ? "Já existe um veículo com esta matrícula." : (err.message || "Erro ao guardar veículo"));
     }
   };
 
@@ -88,7 +119,7 @@ export function VehiclesPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button className="btn" onClick={() => setIsModalOpen(true)}>
+          <button className="btn" onClick={openCreateModal}>
             <Plus size={18} />
             Adicionar Veículo
           </button>
@@ -117,6 +148,13 @@ export function VehiclesPage() {
                 <td>{v.client_name}</td>
                 <td className="actions-cell">
                   <button
+                    className="btn edit"
+                    onClick={() => openEditModal(v)}
+                    title="Editar Veículo"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button
                     className="btn danger"
                     onClick={() => setDeleteId(v.id)}
                     title="Eliminar Veículo"
@@ -137,18 +175,18 @@ export function VehiclesPage() {
       </div>
 
       {isModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2>Novo Veículo</h2>
+              <h2>{editingVehicle ? "Editar Veículo" : "Novo Veículo"}</h2>
               <button 
-                onClick={() => setIsModalOpen(false)} 
+                onClick={closeModal} 
                 style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
               >
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleCreate}>
+            <form onSubmit={handleSave}>
               {error && (
                 <div style={{ color: 'var(--danger)', background: '#fee2e2', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '0.85rem' }}>
                   {error}
@@ -216,11 +254,11 @@ export function VehiclesPage() {
                 />
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
+                <button type="button" className="btn-secondary" onClick={closeModal}>
                   Cancelar
                 </button>
                 <button type="submit" className="btn">
-                  Guardar Veículo
+                  {editingVehicle ? "Guardar Alterações" : "Guardar Veículo"}
                 </button>
               </div>
             </form>
