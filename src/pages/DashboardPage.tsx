@@ -36,7 +36,7 @@ export function DashboardPage() {
       {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
         <StatCard 
-          title="Total Clientes" 
+          title="Clientes" 
           value={stats.clientsCount} 
           icon={<Users size={24} />} 
           color="#3b82f6" 
@@ -48,17 +48,17 @@ export function DashboardPage() {
           color="#10b981" 
         />
         <StatCard 
-          title="Ordens de Serviço" 
+          title="Serviços" 
           value={stats.servicesCount} 
           icon={<Wrench size={24} />} 
           color="#f59e0b" 
         />
-        <StatCard 
+        {/* <StatCard 
           title="Receita Total" 
           value={`${stats.totalRevenue.toFixed(2)}€`} 
           icon={<DollarSign size={24} />} 
           color="#ef4444" 
-        />
+        /> */}
       </div>
 
       {/* Charts Section */}
@@ -111,29 +111,6 @@ export function DashboardPage() {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Summary Table or extra info */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-        <div className="card" style={{ padding: '24px' }}>
-          <h3>Análise de Desempenho</h3>
-          <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                <TrendingUp size={20} color="#3b82f6" />
-              </div>
-              <div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Ticket Médio</div>
-                <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>
-                  {stats.servicesCount > 0 ? (stats.totalRevenue / stats.servicesCount).toFixed(2) : "0.00"}€
-                </div>
-              </div>
-            </div>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-              O seu negócio está a crescer. Continue a registar as ordens de serviço para ver estatísticas mais detalhadas sobre o seu lucro mensal e retenção de clientes.
-            </p>
           </div>
         </div>
       </div>
