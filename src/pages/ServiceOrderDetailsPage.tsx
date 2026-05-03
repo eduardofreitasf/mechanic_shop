@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Printer, Trash2, Calendar, User, Car} from "lucide-react";
+import { ArrowLeft, Printer, Download, Trash2, Calendar, User, Car } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { serviceOrderService } from "../services/serviceOrderService";
 import { ServiceOrder } from "../db";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { PrintTemplate } from "../components/PrintTemplate";
 
 export function ServiceOrderDetailsPage() {
   const { id } = useParams();
@@ -11,6 +14,8 @@ export function ServiceOrderDetailsPage() {
   const [order, setOrder] = useState<ServiceOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (id) {
@@ -23,6 +28,57 @@ export function ServiceOrderDetailsPage() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!printRef.current || !order) return;
+    setIsDownloading(true);
+    try {
+      // Temporarily show the print template for rendering
+      const el = printRef.current;
+      el.style.display = 'block';
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      el.style.top = '0';
+      el.style.width = '794px'; // A4 width in px at 96dpi
+      el.style.padding = '40px';
+      el.style.background = 'white';
+      el.style.color = '#1a1a1a';
+
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      });
+
+      // Reset the print template styles
+      el.style.display = '';
+      el.style.position = '';
+      el.style.left = '';
+      el.style.top = '';
+      el.style.width = '';
+      el.style.padding = '';
+      el.style.background = '';
+      el.style.color = '';
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      // Build filename: plate_date.pdf
+      const plate = (order.vehicle_plate || 'sem-matricula').replace(/[\s/\\]/g, '-');
+      const date = new Date(order.created_at).toLocaleDateString('pt-PT').replace(/\//g, '-');
+      const filename = `${plate}_${date}.pdf`;
+
+      pdf.save(filename);
+    } catch (err) {
+      console.error('Erro ao gerar PDF', err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -51,6 +107,10 @@ export function ServiceOrderDetailsPage() {
             <Printer size={18} />
             <span>Imprimir PDF</span>
           </button>
+          <button className="btn-secondary" onClick={handleDownloadPdf} disabled={isDownloading} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isDownloading ? 0.6 : 1 }}>
+            <Download size={18} />
+            <span>{isDownloading ? 'A gerar...' : 'Download PDF'}</span>
+          </button>
           <button className="btn danger" onClick={() => setIsDeleteModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Trash2 size={18} />
             <span>Eliminar</span>
@@ -58,7 +118,7 @@ export function ServiceOrderDetailsPage() {
         </div>
       </header>
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
@@ -68,71 +128,8 @@ export function ServiceOrderDetailsPage() {
         cancelText="Cancelar"
       />
 
-      {/* --- PRINT TEMPLATE START --- */}
-      <div className="print-template">
-        <div className="invoice-header">
-          <div style={{ textAlign: 'left' }}>
-            <h1 style={{ color: 'var(--primary)', margin: 0, fontSize: '2.5rem' }}>OFICINA</h1>
-          </div>
-          <div style={{ textAlign: 'right', fontSize: '1rem' }}>
-            <div style={{ color: 'var(--text-muted)' }}>Data: {new Date(order.created_at).toLocaleDateString('pt-PT')}</div>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', marginBottom: '10px', paddingBottom: '20px' }}>
-          <div>
-            <div style={{ textTransform: 'uppercase', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '6px' }}>Cliente</div>
-            <div style={{ fontWeight: 700, fontSize: '1.2rem', color: '#1a1a1a', marginBottom: '16px' }}>{order.client_name}</div>
-
-            <div style={{ textTransform: 'uppercase', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '4px', marginTop: '20px' }}>Informações do veículo</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary)' }}>{order.vehicle_plate}</span>
-              <span style={{ color: '#666', fontSize: '1rem' }}>{order.vehicle_brand} {order.vehicle_model}</span>
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ textTransform: 'uppercase', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>Quilometragem</div>
-            <div style={{ fontWeight: 700, fontSize: '1.2rem', color: '#1a1a1a' }}>{order.mileage} km</div>
-          </div>
-        </div>
-
-        <table className="print-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '40px' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #1a1a1a' }}>
-              <th style={{ textAlign: 'left', padding: '12px 5px', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Descrição dos Serviços / Peças</th>
-              <th style={{ textAlign: 'right', padding: '12px 5px', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Preço</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.operations?.map((op, index) => (
-              <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '14px 5px', color: '#333' }}>{op.description}</td>
-                <td style={{ textAlign: 'right', padding: '14px 5px', fontWeight: 500 }}>{op.price.toFixed(2)}€</td>
-              </tr>
-            ))}
-            <tr style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '14px 5px', color: '#333' }}>Mão de Obra</td>
-              <td style={{ textAlign: 'right', padding: '14px 5px', fontWeight: 500 }}>{(order.hours * order.hourly_rate).toFixed(2)}€</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '40px', alignItems: 'end' }}>
-          <div>
-            <div style={{ textTransform: 'uppercase', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>Observações</div>
-            <p style={{ fontSize: '0.9rem', color: '#444', whiteSpace: 'pre-wrap', lineHeight: '1.6', margin: 0 }}>
-              {order.observations || "Nenhuma observação registada."}
-            </p>
-          </div>
-          <div style={{ background: '#f0f4ff', padding: '24px 40px', borderRadius: '16px', textAlign: 'right', border: '1px solid #e0e7ff', minWidth: '300px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '32px' }}>
-              <span style={{ fontSize: '1rem', color: '#6366f1', fontWeight: 700, letterSpacing: '1px' }}>TOTAL</span>
-              <span style={{ fontWeight: 800, fontSize: '1.5rem', color: '#1e1b4b', whiteSpace: 'nowrap' }}>{order.total_price.toFixed(2)}€</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* --- PRINT TEMPLATE END --- */}
+      {/* Shared Print Template — used by both Print and Download */}
+      <PrintTemplate order={order} ref={printRef} />
 
       {/* Screen View (Hidden in Print) */}
       <div className="no-print">

@@ -362,7 +362,30 @@ body {
   color: var(--text-muted);
 }
 
-/* Print Styles */
+/* Print Template Styles (shared by Print and Download PDF) */
+.print-template {
+  display: none;
+}
+
+.print-template .invoice-header {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.print-template .print-table th {
+  background: #f8fafc;
+  -webkit-print-color-adjust: exact;
+}
+
+.no-print {
+  display: block;
+}
+
+/* Print Media Query */
 @page {
   margin: 0;
   size: auto;
@@ -401,26 +424,4 @@ body {
     display: block !important;
     padding: 20px !important;
   }
-
-  .invoice-header {
-    border-bottom: 2px solid var(--primary);
-    padding-bottom: 20px;
-    margin-bottom: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .print-table th {
-    background: #f8fafc !important;
-    -webkit-print-color-adjust: exact;
-  }
-}
-
-.print-template {
-  display: none;
-}
-
-.no-print {
-  display: block;
 }
