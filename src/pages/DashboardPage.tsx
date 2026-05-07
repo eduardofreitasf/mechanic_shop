@@ -61,12 +61,6 @@ export function DashboardPage() {
       {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         <StatCard 
-          title="Receita Total" 
-          value={`${stats.totalRevenue.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`} 
-          icon={<Euro size={22} />} 
-          color="#3b82f6" 
-        />
-        <StatCard 
           title="Serviços" 
           value={stats.servicesCount} 
           icon={<Wrench size={22} />} 
