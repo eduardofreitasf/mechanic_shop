@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Car, Wrench, Plus, Euro, Activity, BarChart3, UserCheck, CarFront } from "lucide-react";
+import { Users, Car, Wrench, Plus, Activity, BarChart3, UserCheck, CarFront } from "lucide-react";
 import { dashboardService, DashboardStats } from "../services/dashboardService";
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
