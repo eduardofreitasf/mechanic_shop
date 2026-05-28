@@ -7,7 +7,7 @@ import { VehicleModal } from "../components/VehicleModal";
 
 export function VehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => sessionStorage.getItem("vehicles_search") || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -23,6 +23,7 @@ export function VehiclesPage() {
 
   useEffect(() => {
     loadData();
+    sessionStorage.setItem("vehicles_search", search);
   }, [search]);
 
   const openCreateModal = () => {
