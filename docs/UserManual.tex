@@ -1,0 +1,752 @@
+% =============================================================
+%  MechanicPro --- User Manual
+%  Template: Professional / Modern / Clean
+% =============================================================
+
+\documentclass[12pt, a4paper]{report}
+
+% -- Encoding & Font ------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% -- Page Layout ----------------------------------------------
+\usepackage[
+top=2.5cm, bottom=2.5cm,
+left=3cm,  right=2.5cm
+]{geometry}
+% Automatic "Month Year" date
+\newcommand{\monthyear}{%
+	\ifcase\month\or January\or February\or March\or April\or May\or June\or
+	July\or August\or September\or October\or November\or December\fi
+	\space\the\year%
+}
+
+% -- Colors ---------------------------------------------------
+\usepackage{xcolor}
+\definecolor{Navy}{RGB}{15, 40, 75}
+\definecolor{Blue}{RGB}{37, 99, 195}
+\definecolor{LightBlue}{RGB}{219, 234, 254}
+\definecolor{TextGray}{RGB}{90, 105, 120}
+\definecolor{LightGray}{RGB}{248, 249, 251}
+\definecolor{RuleGray}{RGB}{220, 225, 232}
+\definecolor{StatusGreen}{RGB}{22, 163, 74}
+\definecolor{WarnYellow}{RGB}{254, 243, 199}
+\definecolor{WarnBorder}{RGB}{217, 119, 6}
+\definecolor{DangerRed}{RGB}{254, 226, 226}
+\definecolor{DangerBorder}{RGB}{185, 28, 28}
+
+% -- Graphics & Drawing ---------------------------------------
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% -- Tables ---------------------------------------------------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+
+% -- Lists ----------------------------------------------------
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em, itemsep=3pt}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=3pt}
+
+% Compact step list (numbered, used for procedures)
+\newlist{steps}{enumerate}{1}
+\setlist[steps]{
+	label=\textbf{\color{Blue}\arabic*.},
+	leftmargin=2em,
+	itemsep=5pt,
+	topsep=6pt,
+}
+
+% -- Headers & Footers ----------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{%
+	\small\color{TextGray}\textit{MechanicPro \textemdash{} User Manual}%
+}
+\fancyhead[R]{%
+	\small\color{TextGray}v1.2.0%
+}
+\fancyfoot[L]{%
+	\small\color{TextGray}User Manual%
+}
+\fancyfoot[R]{%
+	\small\color{TextGray}\thepage%
+}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{%
+	\color{RuleGray}\hrule width\headwidth height\headrulewidth%
+}
+\renewcommand{\footrule}{%
+	\color{RuleGray}\hrule width\headwidth height\footrulewidth%
+}
+
+% Plain style for chapter-opening pages
+\fancypagestyle{plain}{%
+	\fancyhf{}
+	\fancyfoot[R]{\small\color{TextGray}\thepage}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0.4pt}
+	\renewcommand{\footrule}{%
+		\color{RuleGray}\hrule width\headwidth height\footrulewidth%
+	}
+}
+
+% -- Section Formatting ---------------------------------------
+\usepackage{titlesec}
+
+\titleformat{\chapter}[block]
+{\normalfont\huge\bfseries\color{Navy}}
+{\color{Blue}\thechapter}{1em}{}
+[\vspace{4pt}\color{Blue}\rule{\textwidth}{1.5pt}\vspace{-6pt}]
+
+\titlespacing{\chapter}{0pt}{0pt}{20pt}
+
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{Navy}}
+{\color{Blue}\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{TextGray}}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries\color{TextGray}}
+{\thesubsubsection}{1em}{}
+
+% -- TOC Styling ----------------------------------------------
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries\color{Navy}}
+\renewcommand{\cftchappagefont}{\bfseries\color{Navy}}
+\renewcommand{\cftsecfont}{\color{TextGray}}
+\renewcommand{\cftsecpagefont}{\color{TextGray}}
+\setlength{\cftbeforechapskip}{6pt}
+
+% -- Hyperlinks -----------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks  = true,
+	linkcolor   = Blue,
+	urlcolor    = Blue,
+	citecolor   = Blue,
+	pdftitle    = {MechanicPro --- User Manual},
+	pdfauthor   = {Your Name},
+	pdfsubject  = {User Manual},
+	pdfkeywords = {MechanicPro, mechanic shop, user manual},
+}
+
+% -- Custom Commands ------------------------------------------
+
+% Note box (blue)
+\newcommand{\notebox}[1]{%
+	\vspace{6pt}
+	\noindent
+	\colorbox{LightBlue}{%
+		\begin{minipage}{\dimexpr\linewidth-2\fboxsep}%
+			\vspace{5pt}
+			\small\textbf{\color{Blue}Note:\space}\color{Navy}#1
+			\vspace{5pt}
+		\end{minipage}%
+	}
+	\vspace{6pt}
+}
+
+% Warning box (yellow)
+\newcommand{\warnbox}[1]{%
+	\vspace{6pt}
+	\noindent
+	\colorbox{WarnYellow}{%
+		\begin{minipage}{\dimexpr\linewidth-2\fboxsep}%
+			\vspace{5pt}
+			\small\textbf{\color{WarnBorder}Warning:\space}\color{Navy}#1
+			\vspace{5pt}
+		\end{minipage}%
+	}
+	\vspace{6pt}
+}
+
+% Danger box (red) -- for destructive actions
+\newcommand{\dangerbox}[1]{%
+	\vspace{6pt}
+	\noindent
+	\colorbox{DangerRed}{%
+		\begin{minipage}{\dimexpr\linewidth-2\fboxsep}%
+			\vspace{5pt}
+			\small\textbf{\color{DangerBorder}Caution:\space}\color{Navy}#1
+			\vspace{5pt}
+		\end{minipage}%
+	}
+	\vspace{6pt}
+}
+
+% UI element label (buttons, menus, field names)
+\newcommand{\ui}[1]{\textbf{\color{Navy}#1}}
+
+% Keyboard shortcut
+\newcommand{\key}[1]{%
+	\tikz[baseline=(k.base)]\node[
+	draw=RuleGray, fill=LightGray, rounded corners=2pt,
+	inner xsep=4pt, inner ysep=2pt, font=\small\ttfamily
+	](k){#1};%
+}
+
+% Placeholder for screenshots
+\newcommand{\screenshot}[1]{%
+	\begin{center}
+		\begin{tikzpicture}
+			\draw[dashed, color=RuleGray, fill=LightGray, rounded corners=4pt]
+			(0,0) rectangle (\linewidth-0.4cm, 5cm);
+			\node[color=TextGray] at (0.5\linewidth-0.2cm, 2.5cm)
+			{\small\textit{[Screenshot: #1]}};
+		\end{tikzpicture}
+	\end{center}
+}
+
+% -- Abstract Page --------------------------------------------
+\newcommand{\abstractpage}[1]{%
+	\clearpage
+	\thispagestyle{plain}
+	\vspace*{2cm}
+	\begin{center}
+		{\color{Navy}\Large\bfseries Abstract}\\[0.4cm]
+		\color{Blue}\rule{0.3\textwidth}{1.5pt}
+	\end{center}
+	\vspace{0.8cm}
+	\begin{quote}
+		\setlength{\parskip}{6pt}
+		\normalsize #1
+	\end{quote}
+	\vfill
+	\noindent\small\color{TextGray}
+	\textbf{Keywords:} MechanicPro, user manual, mechanic shop,
+	service orders, clients, vehicles, CSV, PDF.
+	\clearpage
+}
+
+% -- Cover Page -----------------------------------------------
+\newcommand{\coverpage}{%
+	\begin{titlepage}
+		\begin{tikzpicture}[remember picture, overlay]
+			
+			%% Top bar
+			\fill[Navy]
+			(current page.north west)
+			rectangle
+			([yshift=-4cm] current page.north east);
+			
+			%% Accent stripe
+			\fill[Blue]
+			([yshift=-4cm] current page.north west)
+			rectangle
+			([yshift=-4.12cm] current page.north east);
+			
+			%% Bottom band
+			\fill[LightGray]
+			(current page.south west)
+			rectangle
+			([yshift=3.2cm] current page.south east);
+			
+			%% Bottom band top border
+			\fill[RuleGray]
+			([yshift=3.2cm] current page.south west)
+			rectangle
+			([yshift=3.24cm] current page.south east);
+			
+		\end{tikzpicture}
+		
+		%% -- Top bar content -----------------------
+		\vspace*{1.2cm}
+		\hspace{1.2cm}
+		\begin{minipage}{0.8\textwidth}
+			{\color{white}\footnotesize\bfseries\MakeUppercase{User Manual}}
+			\quad
+			{\color{Blue!40!white}\footnotesize User Manual}
+		\end{minipage}
+		
+		\vspace{3.6cm}
+		
+		%% -- Main title block ----------------------
+		\hspace{1.2cm}
+		\begin{minipage}{0.82\textwidth}
+			
+			{\color{Navy}\Huge\bfseries\scalebox{2.0}{MechanicPro}}
+			
+			\vspace{0.3cm}
+			{\color{TextGray}\large Management System for a Mechanic Shop}
+			
+			\vspace{0.6cm}
+			\color{Blue}\rule{\textwidth}{1.5pt}
+			\vspace{0.3cm}
+			
+			{\color{TextGray}\normalsize
+				Complete Guide to Installation, Daily Use, and Data Management
+			}
+			
+		\end{minipage}
+		
+		\vfill
+		
+		%% -- Metadata block ------------------------
+		\hspace{1.2cm}
+		\begin{minipage}{0.82\textwidth}
+			\renewcommand{\arraystretch}{1.5}
+			\begin{tabular}{>{\color{TextGray}\small\bfseries}l
+					>{\small}l
+					@{\hskip 2cm}
+					>{\color{TextGray}\small\bfseries}l
+					>{\small}l}
+				Author    & Your Name      & Version   & 1.2.0      \\
+				Date      & \monthyear     & Status    &
+				\textcolor{StatusGreen}{\bfseries Final}        \\
+				Document  & User Manual & Language  & English    \\
+			\end{tabular}
+		\end{minipage}
+		
+		\vspace{2.8cm}
+		
+	\end{titlepage}
+}
+
+% =============================================================
+%  DOCUMENT
+% =============================================================
+
+\begin{document}
+	
+	\coverpage
+	
+	\abstractpage{%
+		This document is the user manual for \textbf{MechanicPro}, a desktop
+		application for managing the operations of a mechanic shop. It covers
+		everything a user needs to install and run the application, navigate its
+		interface, and perform all available tasks.
+		
+		The manual is organised by workflow. Each chapter corresponds to a
+		distinct area of the application: managing clients and vehicles, handling
+		service orders, using the dashboard, and working with data import,
+		export, and PDF generation.
+		
+		No technical knowledge is required to follow this manual. For information
+		about the system architecture or database design, refer to the Technical
+		Report (TR-MECHPRO-001).
+	}
+	
+	% -- Revision History -----------------------------------------
+	\chapter*{Revision History}
+
+	\noindent \begin{tabularx}{\textwidth}{c l X l}
+		\toprule
+		\textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
+		\midrule
+		1.0.0 & Jan 2026 & Initial document created          & Your Name \\
+		1.2.0 & May 2026 & CSV and PDF sections added        & Your Name \\
+		\bottomrule
+	\end{tabularx}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	
+	\listoffigures
+	
+	\newpage
+	
+	\listoftables
+	
+	
+	% =============================================================
+	%  CHAPTER 1 --- INTRODUCTION
+	% =============================================================
+	\chapter{Introduction}
+	
+	\section{About This Manual}
+	% Explain the purpose of this document and how it is structured.
+	% Who it is for, what it covers, and what it does not cover.
+	
+	\section{About MechanicPro}
+	% Brief, non-technical description of what the application does.
+	% Focus on the user's perspective: what problems it solves.
+	
+	\section{Conventions Used in This Manual}
+	
+	Throughout this document the following conventions are used:
+	
+	\begin{itemize}
+		\item \ui{Bold navy text} refers to interface elements such as buttons,
+		menu items, and field labels.
+		\item \key{Ctrl+S} represents keyboard shortcuts.
+		\item Steps to complete a task are numbered and shown like this:
+	\end{itemize}
+	
+	\begin{steps}
+		\item This is how a step looks.
+		\item Each step describes one action.
+	\end{steps}
+	
+	\notebox{Blue boxes contain tips or additional context.}
+	
+	\warnbox{Yellow boxes highlight situations that may produce unexpected results.}
+	
+	\dangerbox{Red boxes warn about irreversible actions, such as deleting records.}
+	
+	% =============================================================
+	%  CHAPTER 2 --- INSTALLATION
+	% =============================================================
+	\chapter{Installation}
+	
+	\section{System Requirements}
+	
+	\begin{tabularx}{\textwidth}{l X}
+		\toprule
+		\textbf{Component} & \textbf{Requirement} \\
+		\midrule
+		Operating System & Windows 10 or later / macOS 11 or later / Ubuntu 20.04 or later \\
+		RAM              & 4 GB minimum, 8 GB recommended \\
+		Disk Space       & % Fill in after checking the built binary size
+		\\
+		Additional       & Windows: WebView2 runtime (included in Windows 11) \\
+		\bottomrule
+	\end{tabularx}
+	
+	\section{Installing the Application}
+	
+	\subsection{Windows}
+	
+	\begin{steps}
+		\item Download the \texttt{MechanicPro\_1.2.0\_x64.msi} installer.
+		\item Double-click the installer file.
+		\item Follow the on-screen instructions.
+		\item Launch \ui{MechanicPro} from the Start Menu or the desktop shortcut.
+	\end{steps}
+	
+	\notebox{Windows may show a security warning on first launch because the
+		application is not signed with a commercial certificate. Click
+		\ui{More info} and then \ui{Run anyway} to proceed.}
+	
+	\subsection{macOS}
+	
+	\begin{steps}
+		\item Download the \texttt{MechanicPro\_1.2.0\_x64.dmg} file.
+		\item Open the \texttt{.dmg} and drag \ui{MechanicPro} to your
+		\ui{Applications} folder.
+		\item On first launch, right-click the app and select \ui{Open}.
+	\end{steps}
+	
+	\subsection{Linux}
+	
+	\begin{steps}
+		\item Download the \texttt{.deb} or \texttt{.AppImage} package.
+		\item Install with \texttt{sudo dpkg -i MechanicPro\_1.2.0\_amd64.deb}
+		or make the AppImage executable and run it directly.
+	\end{steps}
+	
+	\section{First Launch}
+	% Describe what the user sees the very first time they open the app.
+	% Empty state, any welcome message, where data is stored.
+	
+	\notebox{MechanicPro stores all data locally on your machine. No account or
+		internet connection is required.}
+	
+	% =============================================================
+	%  CHAPTER 3 --- INTERFACE OVERVIEW
+	% =============================================================
+	\chapter{Interface Overview}
+	
+	\section{Main Window}
+	% Describe the overall layout: sidebar/navigation, main content area,
+	% header bar, any status indicators.
+	
+	\screenshot{Main application window}
+	
+	\section{Navigation}
+	% How the user moves between sections (sidebar links, top menu, etc.)
+	% List all main sections accessible from navigation.
+	
+	\section{Dashboard}
+	% Brief intro here; the full dashboard chapter comes later.
+	% Just orient the user to what they see on startup.
+	
+	\screenshot{Dashboard overview}
+	
+	% =============================================================
+	%  CHAPTER 4 --- CLIENTS
+	% =============================================================
+	\chapter{Managing Clients}
+	
+	\section{Viewing the Client List}
+	% How to access the clients section, what the list shows,
+	% how to search or filter.
+	
+	\screenshot{Client list view}
+	
+	\section{Adding a Client}
+	
+	\begin{steps}
+		\item Navigate to the \ui{Clients} section.
+		\item Click \ui{New Client}.
+		\item Fill in the required fields:
+		\begin{itemize}
+			\item \ui{Name} --- full name of the client (required).
+			\item \ui{Phone} --- contact phone number.
+			\item \ui{Email} --- contact email address.
+		\end{itemize}
+		\item Click \ui{Save}.
+	\end{steps}
+	
+	\section{Editing a Client}
+	
+	\begin{steps}
+		\item Locate the client in the list.
+		\item Click on the client's name or the edit icon.
+		\item Update the fields as needed.
+		\item Click \ui{Save}.
+	\end{steps}
+	
+	\section{Viewing a Client's History}
+	% How to see all service orders associated with a given client.
+	
+	% =============================================================
+	%  CHAPTER 5 --- VEHICLES
+	% =============================================================
+	\chapter{Managing Vehicles}
+	
+	\section{Viewing the Vehicle List}
+	% How vehicles are listed, how they relate to clients.
+	
+	\section{Adding a Vehicle}
+	
+	\begin{steps}
+		\item Navigate to the \ui{Vehicles} section.
+		\item Click \ui{New Vehicle}.
+		\item Fill in the required fields:
+		\begin{itemize}
+			\item \ui{Licence Plate} --- unique identifier for the vehicle (required).
+			\item \ui{Make} --- manufacturer name.
+			\item \ui{Model} --- vehicle model.
+			\item \ui{Year} --- year of manufacture.
+			\item \ui{Owner} --- select the associated client.
+		\end{itemize}
+		\item Click \ui{Save}.
+	\end{steps}
+	
+	\section{Editing a Vehicle}
+	
+	\begin{steps}
+		\item Locate the vehicle in the list.
+		\item Click the edit icon.
+		\item Update the fields as needed.
+		\item Click \ui{Save}.
+	\end{steps}
+	
+	% =============================================================
+	%  CHAPTER 6 --- SERVICE ORDERS
+	% =============================================================
+	\chapter{Service Orders}
+	
+	\section{Overview}
+	% Explain what a service order is in the context of this app.
+	% What information it holds, what states it can be in.
+	
+	\begin{tabularx}{\textwidth}{l X}
+		\toprule
+		\textbf{Status} & \textbf{Meaning} \\
+		\midrule
+		% Fill in the actual statuses used in the app
+		Open       & The service has been registered but work has not started. \\
+		In Progress & Work is currently underway. \\
+		Completed  & The service has been finished. \\
+		\bottomrule
+	\end{tabularx}
+	
+	\section{Creating a Service Order}
+	
+	\begin{steps}
+		\item Navigate to \ui{Service Orders}.
+		\item Click \ui{New Order}.
+		\item Select the \ui{Client} and associated \ui{Vehicle}.
+		\item Describe the service requested in the \ui{Description} field.
+		\item Set the \ui{Status} and any other relevant fields.
+		\item Click \ui{Save}.
+	\end{steps}
+	
+	\notebox{You can also create a new client or vehicle directly from this
+		screen without leaving the service order form.}
+	
+	\section{Updating a Service Order}
+	% How to change the status, add notes, update cost, etc.
+	
+	\section{Changing the Order of Services}
+	% The app supports reordering --- explain how and why.
+	
+	\section{Viewing Service History}
+	% How to access the history of completed or past orders.
+	% What information is visible in history view.
+	
+	\screenshot{Service history view}
+	
+	\section{Downloading Service Details}
+	% The button that generates a PDF of a service order.
+	% Covered in more detail in Chapter 8.
+	
+	% =============================================================
+	%  CHAPTER 7 --- DASHBOARD
+	% =============================================================
+	\chapter{Dashboard}
+	
+	\section{Overview}
+	% What the dashboard shows at a glance.
+	% Purpose: quick status check, not detailed management.
+	
+	\screenshot{Dashboard with data}
+	
+	\section{Statistics}
+	% Describe each statistic shown:
+	% total clients, total vehicles, open orders, completed orders, etc.
+	% What the numbers represent and how they are calculated.
+	
+	\section{Quick Actions}
+	% The shortcut buttons available on the dashboard
+	% (e.g., create client, create vehicle directly from dashboard).
+	
+	\section{Charts}
+	% Describe the charts shown (recharts library).
+	% What period they cover, what they represent.
+	
+	% =============================================================
+	%  CHAPTER 8 --- DATA MANAGEMENT
+	% =============================================================
+	\chapter{Data Management}
+	
+	\section{Exporting Data to CSV}
+	% Which entities can be exported (clients, vehicles, orders).
+	% How to trigger the export, where the file is saved.
+	
+	\begin{steps}
+		\item Navigate to the \ui{Export} section.
+		\item Select the data to export.
+		\item Click \ui{Export CSV}.
+		\item Choose a location to save the file.
+	\end{steps}
+	
+	\section{Importing Data from CSV}
+	% How to prepare a CSV file for import.
+	% Column format requirements.
+	% How to trigger the import.
+	
+	\warnbox{Importing a CSV file will add records to the existing data.
+		It does not replace or delete current records.}
+	
+	\subsection{Required CSV Format}
+	
+	The import file must use UTF-8 encoding and include the following columns:
+	
+	\begin{tabularx}{\textwidth}{l l X}
+		\toprule
+		\textbf{Column} & \textbf{Required} & \textbf{Notes} \\
+		\midrule
+		% Fill in the actual columns once confirmed from source code
+		name   & Yes & Full name of the client \\
+		phone  & No  & Contact number \\
+		email  & No  & Contact email \\
+		\bottomrule
+	\end{tabularx}
+	
+	\begin{steps}
+		\item Navigate to the \ui{Import} section.
+		\item Click \ui{Choose File} and select your CSV file.
+		\item Review the preview.
+		\item Click \ui{Import}.
+	\end{steps}
+	
+	\dangerbox{Records created by import cannot be automatically undone.
+		Make an export backup before importing new data.}
+	
+	\section{Generating PDF Documents}
+	% How to download a service order as a PDF.
+	% What the PDF contains (fields, layout).
+	% Where the file is saved.
+	
+	\begin{steps}
+		\item Open a service order.
+		\item Click \ui{Download}.
+		\item Choose a save location.
+	\end{steps}
+	
+	% =============================================================
+	%  CHAPTER 9 --- TROUBLESHOOTING
+	% =============================================================
+	\chapter{Troubleshooting}
+	
+	\section{Common Issues}
+	
+	\begin{tabularx}{\textwidth}{l X}
+		\toprule
+		\textbf{Problem} & \textbf{Solution} \\
+		\midrule
+		Application does not open
+		& Check that WebView2 is installed (Windows only).
+		Try reinstalling the application. \\
+		\addlinespace
+		CSV import fails
+		& Verify the file is UTF-8 encoded and that all required
+		columns are present with the correct header names. \\
+		\addlinespace
+		Data appears missing after reinstall
+		& The database is stored separately from the application.
+		See Section~\ref{sec:dataLocation} for the file location. \\
+		\addlinespace
+		PDF does not download
+		& Check that you have write permission to the chosen folder. \\
+		\bottomrule
+	\end{tabularx}
+	
+	\section{Data File Location}
+	\label{sec:dataLocation}
+	% Where the SQLite database file is stored on each platform.
+	% Windows: %APPDATA%\mechanic_shop\
+	% macOS:   ~/Library/Application Support/mechanic_shop/
+	% Linux:   ~/.local/share/mechanic_shop/
+	
+	\notebox{You can back up your data by copying the database file to a safe
+		location. The filename is \texttt{mechanic\_shop.db}.}
+	
+	% =============================================================
+	%  APPENDICES
+	% =============================================================
+	\appendix
+	
+	\chapter{Glossary}
+	
+	\begin{tabularx}{\textwidth}{l X}
+		\toprule
+		\textbf{Term} & \textbf{Definition} \\
+		\midrule
+		Client        & A person or entity whose vehicle is serviced. \\
+		Vehicle       & A car or other vehicle registered under a client. \\
+		Service Order & A record of a service performed or requested. \\
+		CSV           & Comma-Separated Values. A plain text file format
+		for tabular data. \\
+		PDF           & Portable Document Format. A fixed-layout document
+		format used for service records. \\
+		\bottomrule
+	\end{tabularx}
+	
+	\chapter{Keyboard Shortcuts}
+	
+	\begin{tabularx}{\textwidth}{l X}
+		\toprule
+		\textbf{Shortcut} & \textbf{Action} \\
+		\midrule
+		% Fill in once confirmed from source code
+		\bottomrule
+	\end{tabularx}
+	
+\end{document}
