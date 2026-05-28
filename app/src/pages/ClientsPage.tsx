@@ -7,7 +7,7 @@ import { ClientModal } from "../components/ClientModal";
 
 export function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => sessionStorage.getItem("clients_search") || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -23,6 +23,7 @@ export function ClientsPage() {
 
   useEffect(() => {
     loadClients();
+    sessionStorage.setItem("clients_search", search);
   }, [search]);
 
   const openCreateModal = () => {
