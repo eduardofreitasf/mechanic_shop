@@ -8,8 +8,10 @@ import { ConfirmModal } from "../components/ConfirmModal";
 export function ServicesPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
-  const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
+  const [search, setSearch] = useState(() => sessionStorage.getItem("services_search") || "");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">(
+    () => (sessionStorage.getItem("services_sortOrder") as "ASC" | "DESC") || "DESC"
+  );
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const loadOrders = async () => {
@@ -23,6 +25,8 @@ export function ServicesPage() {
 
   useEffect(() => {
     loadOrders();
+    sessionStorage.setItem("services_search", search);
+    sessionStorage.setItem("services_sortOrder", sortOrder);
   }, [search, sortOrder]);
 
   const handleDelete = async () => {
