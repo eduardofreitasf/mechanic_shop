@@ -153,10 +153,6 @@ export function VehicleHistoryOverlay({ isOpen, onClose, vehicleId, vehiclePlate
             </div>
           )}
         </div>
-
-        <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn" onClick={onClose}>Fechar</button>
-        </div>
       </div>
     </div>
   );
