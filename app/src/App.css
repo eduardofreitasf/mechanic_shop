@@ -139,6 +139,26 @@ body {
   box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
+.btn.btn-success {
+  background-color: #10b981;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn.btn-success:hover {
+  background-color: #059669;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+.btn.btn-slate {
+  background-color: #64748b;
+  box-shadow: 0 2px 4px rgba(100, 116, 139, 0.2);
+}
+
+.btn.btn-slate:hover {
+  background-color: #475569;
+  box-shadow: 0 4px 6px rgba(100, 116, 139, 0.3);
+}
+
 .btn.danger {
   background-color: transparent;
   color: var(--danger);

@@ -43,11 +43,11 @@ export function DashboardPage() {
           <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Estatísticas e visão geral da oficina.</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn" onClick={() => setIsClientModalOpen(true)}>
+          <button className="btn btn-success" onClick={() => setIsClientModalOpen(true)}>
             <Plus size={18} />
             Registar Cliente
           </button>
-          <button className="btn" onClick={() => setIsVehicleModalOpen(true)}>
+          <button className="btn btn-slate" onClick={() => setIsVehicleModalOpen(true)}>
             <Plus size={18} />
             Registar Veículo
           </button>
