@@ -1,0 +1,564 @@
+% =============================================================
+%  MechanicPro --- Technical Report
+%  Template: Professional / Modern / Clean
+% =============================================================
+
+\documentclass[12pt, a4paper]{report}
+
+% -- Encoding & Font ------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+
+% -- Page Layout ----------------------------------------------
+\usepackage[
+top=2.5cm, bottom=2.5cm,
+left=3cm,  right=2.5cm
+]{geometry}
+% Automatic "Month Year" date (no extra package needed)
+\newcommand{\monthyear}{%
+	\ifcase\month\or January\or February\or March\or April\or May\or June\or
+	July\or August\or September\or October\or November\or December\fi
+	\space\the\year%
+}
+
+% -- Colors ---------------------------------------------------
+\usepackage{xcolor}
+\definecolor{Navy}{RGB}{15, 40, 75}
+\definecolor{Blue}{RGB}{37, 99, 195}
+\definecolor{LightBlue}{RGB}{219, 234, 254}
+\definecolor{TextGray}{RGB}{90, 105, 120}
+\definecolor{LightGray}{RGB}{248, 249, 251}
+\definecolor{RuleGray}{RGB}{220, 225, 232}
+\definecolor{StatusGreen}{RGB}{22, 163, 74}
+
+% -- Graphics & Drawing ---------------------------------------
+\usepackage{graphicx}
+\usepackage{scalerel}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% -- Tables ---------------------------------------------------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+
+% -- Lists ----------------------------------------------------
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em, itemsep=2pt}
+\setlist[enumerate]{leftmargin=1.5em, itemsep=2pt}
+
+% -- Code Listings --------------------------------------------
+\usepackage{listings}
+\lstset{
+	basicstyle=\small\ttfamily,
+	keywordstyle=\color{Blue}\bfseries,
+	commentstyle=\color{TextGray}\itshape,
+	stringstyle=\color{StatusGreen},
+	backgroundcolor=\color{LightGray},
+	frame=single,
+	framerule=0pt,
+	rulecolor=\color{RuleGray},
+	numbers=left,
+	numberstyle=\tiny\color{TextGray},
+	numbersep=8pt,
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	xleftmargin=12pt,
+}
+
+% -- Headers & Footers ----------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{%
+	\small\color{TextGray}\textit{MechanicPro \textemdash{} Technical Report}%
+}
+\fancyhead[R]{%
+	\small\color{TextGray}v1.2.0%
+}
+\fancyfoot[L]{%
+	\small\color{TextGray}Technical Report%
+}
+\fancyfoot[R]{%
+	\small\color{TextGray}\thepage%
+}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{%
+	\color{RuleGray}\hrule width\headwidth height\headrulewidth%
+}
+\renewcommand{\footrule}{%
+	\color{RuleGray}\hrule width\headwidth height\footrulewidth%
+}
+
+% Plain style for chapter-opening pages
+\fancypagestyle{plain}{%
+	\fancyhf{}
+	\fancyfoot[R]{\small\color{TextGray}\thepage}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0.4pt}
+	\renewcommand{\footrule}{%
+		\color{RuleGray}\hrule width\headwidth height\footrulewidth%
+	}
+}
+
+% -- Section Formatting ---------------------------------------
+\usepackage{titlesec}
+
+\titleformat{\chapter}[block]
+{\normalfont\huge\bfseries\color{Navy}}
+{\color{Blue}\thechapter}{1em}{}
+[\vspace{4pt}\color{Blue}\rule{\textwidth}{1.5pt}\vspace{-6pt}]
+
+\titlespacing{\chapter}{0pt}{0pt}{20pt}
+
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{Navy}}
+{\color{Blue}\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{TextGray}}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries\color{TextGray}}
+{\thesubsubsection}{1em}{}
+
+% -- TOC Styling ----------------------------------------------
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries\color{Navy}}
+\renewcommand{\cftchappagefont}{\bfseries\color{Navy}}
+\renewcommand{\cftsecfont}{\color{TextGray}}
+\renewcommand{\cftsecpagefont}{\color{TextGray}}
+\setlength{\cftbeforechapskip}{6pt}
+
+% -- Hyperlinks -----------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks  = true,
+	linkcolor   = Blue,
+	urlcolor    = Blue,
+	citecolor   = Blue,
+	pdftitle    = {MechanicPro --- Technical Report},
+	pdfauthor   = {Your Name},
+	pdfsubject  = {Technical Report},
+	pdfkeywords = {Tauri, React, TypeScript, SQLite, Desktop Application},
+}
+
+% -- Custom Commands ------------------------------------------
+
+% Info box
+\newcommand{\infobox}[1]{%
+	\vspace{6pt}
+	\noindent
+	\colorbox{LightBlue}{%
+		\begin{minipage}{\dimexpr\linewidth-2\fboxsep}%
+			\vspace{4pt}
+			\small #1
+			\vspace{4pt}
+		\end{minipage}%
+	}
+	\vspace{6pt}
+}
+
+% Term definition
+\newcommand{\term}[1]{\textbf{\color{Blue}#1}}
+
+% Abstract page
+\newcommand{\abstractpage}[1]{%
+	\clearpage
+	\thispagestyle{plain}
+	\vspace*{2cm}
+	\begin{center}
+		{\color{Navy}\Large\bfseries Abstract}\\[0.4cm]
+		\color{Blue}\rule{0.3\textwidth}{1.5pt}
+	\end{center}
+	\vspace{0.8cm}
+	\begin{quote}
+		\setlength{\parskip}{6pt}
+		\normalsize #1
+	\end{quote}
+	\vfill
+	\noindent\small\color{TextGray}
+	\textbf{Keywords:} Tauri, React, TypeScript, SQLite, Desktop Application,
+	Mechanic Shop Management.
+	\clearpage
+}
+\newcommand{\coverpage}{%
+	\begin{titlepage}
+		\begin{tikzpicture}[remember picture, overlay]
+			
+			%% Top bar
+			\fill[Navy]
+			(current page.north west)
+			rectangle
+			([yshift=-4cm] current page.north east);
+			
+			%% Accent stripe below top bar
+			\fill[Blue]
+			([yshift=-4cm] current page.north west)
+			rectangle
+			([yshift=-4.12cm] current page.north east);
+			
+			%% Bottom band
+			\fill[LightGray]
+			(current page.south west)
+			rectangle
+			([yshift=3.2cm] current page.south east);
+			
+			%% Bottom band top border
+			\fill[RuleGray]
+			([yshift=3.2cm] current page.south west)
+			rectangle
+			([yshift=3.24cm] current page.south east);
+			
+		\end{tikzpicture}
+		
+		%% -- Top bar content ----------------------
+		\vspace*{1.2cm}
+		\hspace{1.2cm}
+		\begin{minipage}{0.8\textwidth}
+			{\color{white}\footnotesize\bfseries\MakeUppercase{Technical Report}}
+			\quad
+			{\color{Blue!40!white}\footnotesize Technical Report}
+		\end{minipage}
+		
+		\vspace{3.6cm}
+		
+		%% -- Main title block ---------------------
+		\hspace{1.2cm}
+		\begin{minipage}{0.82\textwidth}
+			
+			{\color{Navy}\Huge\bfseries\scalebox{2.0}{MechanicPro}}
+			
+			\vspace{0.3cm}
+			{\color{TextGray}\large Management System for a Mechanic Shop}
+			
+			\vspace{0.6cm}
+			\color{Blue}\rule{\textwidth}{1.5pt}
+			\vspace{0.3cm}
+			
+			{\color{TextGray}\normalsize
+				System Architecture, Database Design, and Technical Overview
+			}
+			
+		\end{minipage}
+		
+		\vfill
+		
+		%% -- Metadata block -----------------------
+		\hspace{1.2cm}
+		\begin{minipage}{0.82\textwidth}
+			\renewcommand{\arraystretch}{1.5}
+			\begin{tabular}{>{\color{TextGray}\small\bfseries}l
+					>{\small}l
+					@{\hskip 2cm}
+					>{\color{TextGray}\small\bfseries}l
+					>{\small}l}
+				Author    & Eduardo Freitas Fernandes      & Version   & 1.2.0      \\
+				Date      & \monthyear     & Status    &
+				\textcolor{StatusGreen}{\bfseries Final}        \\
+				Document  & Technical Report & Language  & English    \\
+			\end{tabular}
+		\end{minipage}
+		
+		\vspace{2.8cm}
+		
+	\end{titlepage}
+}
+
+% =============================================================
+%  DOCUMENT
+% =============================================================
+
+\begin{document}
+	
+	\coverpage
+	
+	\abstractpage{%
+		This document is the technical report for \textbf{MechanicPro}, a desktop
+		application designed to manage the day-to-day operations of a mechanic shop.
+		The report describes the system architecture, the technology stack, the
+		database design, and the build and release process.
+		
+		MechanicPro is built with \term{Tauri v2} and \term{Rust} for the desktop
+		shell, \term{React 19} and \term{TypeScript} for the user interface, and
+		\term{SQLite} for local data persistence. The application runs entirely
+		offline, with no server or cloud dependency.
+		
+		The intended reader is a developer who wants to understand, maintain, or
+		extend the system. Usage instructions are covered separately in the User
+		Manual.
+	}
+	
+	% -- Revision History -----------------------------------------
+	\chapter*{Revision History}
+	
+	\noindent \begin{tabularx}{\textwidth}{c l X l}
+		\toprule
+		\textbf{Version} & \textbf{Date} & \textbf{Description} & \textbf{Author} \\
+		\midrule
+		1.0.0 & Jan 2026 & Initial document created           & Your Name \\
+		1.1.0 & Mar 2026 & Architecture section expanded      & Your Name \\
+		1.2.0 & May 2026 & Database and build sections added  & Your Name \\
+		\bottomrule
+	\end{tabularx}
+	
+	\vspace{1cm}
+	\noindent\small\color{TextGray}
+	This document describes version 1.2.0 of MechanicPro.
+	For changes to the application itself, refer to the project \texttt{CHANGELOG.md}.
+	
+	\newpage
+	
+	% -- Table of Contents ----------------------------------------
+	\tableofcontents
+	
+	\newpage
+	
+	\listoffigures
+	
+	\newpage
+	
+	\listoftables   % uncomment if you add tables
+	
+	% =============================================================
+	%  CHAPTER 1 --- INTRODUCTION
+	% =============================================================
+	\chapter{Introduction}
+	
+	\section{Purpose}
+	% Explain why this document exists and what it covers.
+	
+	\section{Scope}
+	% What is included (and what is not). This report covers the
+	% technical aspects of MechanicPro --- architecture, database,
+	% and build process. It does not cover usage instructions.
+	
+	\section{Intended Audience}
+	% Even if it's just you, state it. Good practice.
+	% e.g., developers who want to understand or extend the system.
+	
+	\section{Document Conventions}
+	% Explain any conventions used: code formatting, note boxes, etc.
+	
+	\infobox{\textbf{Note:} Blue boxes like this one highlight important
+		information or warnings throughout the document.}
+	
+	% =============================================================
+	%  CHAPTER 2 --- SYSTEM OVERVIEW
+	% =============================================================
+	\chapter{System Overview}
+	
+	\section{Application Purpose}
+	% What does MechanicPro do? Who is it for?
+	% Keep this short --- the user manual will go into detail.
+	
+	\section{Technology Stack}
+	
+	\begin{tabularx}{\textwidth}{l l X}
+		\toprule
+		\textbf{Layer}    & \textbf{Technology}         & \textbf{Role} \\
+		\midrule
+		UI Framework      & React 19 + TypeScript        & Frontend interface \\
+		Build Tool        & Vite                         & Dev server and bundler \\
+		Desktop Shell     & Tauri v2 (Rust)              & Native window and OS access \\
+		Database          & SQLite (via Tauri SQL plugin) & Local data persistence \\
+		Routing           & react-router-dom             & Page navigation \\
+		Charts            & recharts                     & Dashboard visualisations \\
+		PDF Generation    & jsPDF + html2canvas          & Service document export \\
+		Icons             & lucide-react                 & UI icon set \\
+		\bottomrule
+	\end{tabularx}
+	
+	\section{System Requirements}
+	% Minimum OS, RAM, disk space. Supported platforms (Windows,
+	% macOS, Linux). Required runtimes (WebView2 on Windows, etc.)
+	
+	\section{High-Level Data Flow}
+	% Brief description of how data moves: user action -> React ->
+	% Tauri command -> Rust -> SQLite -> response back to UI.
+	% A diagram here would be ideal (TikZ or an included image).
+	
+	% =============================================================
+	%  CHAPTER 3 --- ARCHITECTURE
+	% =============================================================
+	\chapter{Architecture}
+	
+	\section{Overview}
+	% Describe the two-process model: the WebView (React) and the
+	% Rust core. Explain that they cannot share memory directly.
+	
+	\section{Frontend --- React and TypeScript}
+	
+	\subsection{Component Structure}
+	% Describe the main pages/components and how they are organised.
+	
+	\subsection{State Management}
+	% How is state handled? Local component state, context, etc.
+	
+	\subsection{Routing}
+	% Which routes exist, how navigation is structured.
+	
+	\section{Backend --- Tauri and Rust}
+	
+	\subsection{Tauri Commands}
+	% Explain what Tauri commands are: Rust functions exposed to
+	% the frontend. List the main command groups.
+	
+	\subsection{Plugin Usage}
+	% Tauri SQL plugin, file system plugin, dialog plugin, etc.
+	
+	\section{IPC Communication}
+	% How the frontend calls Rust commands (invoke), how errors
+	% are handled across the boundary, data serialisation (JSON).
+	
+	\section{Folder Structure}
+	% Annotated tree of the repository.
+	
+	\begin{lstlisting}[language=bash, caption={Repository structure}]
+		mechanic_shop/
+		+--- src/               # React + TypeScript source
+		|   +--- components/    # Reusable UI components
+		|   +--- pages/         # Route-level page components
+		|   `--- ...
+		+--- src-tauri/         # Rust / Tauri backend
+		|   +--- src/
+		|   |   +--- main.rs    # Entry point
+		|   |   `--- ...
+		|   `--- tauri.conf.json
+		+--- public/            # Static assets
+		+--- package.json
+		`--- vite.config.ts
+	\end{lstlisting}
+	
+	% =============================================================
+	%  CHAPTER 4 --- DATABASE
+	% =============================================================
+	\chapter{Database}
+	
+	\section{Overview}
+	% SQLite, local file, path on each OS, no server required.
+	
+	\section{Schema}
+	% One subsection per table. For each:
+	%   - Purpose of the table
+	%   - Column name, type, constraints, description
+	%   - Primary key and foreign key relationships
+	
+	% Example table documentation:
+	\subsection{clients}
+	% Description of what this table stores.
+	
+	\begin{tabularx}{\textwidth}{l l l X}
+		\toprule
+		\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+		\midrule
+		id         & INTEGER & PK, AUTOINCREMENT & Unique client identifier \\
+		name       & TEXT    & NOT NULL          & Full name of the client \\
+		phone      & TEXT    &                   & Contact phone number \\
+		email      & TEXT    &                   & Contact email address \\
+		created\_at & TEXT   & NOT NULL          & ISO 8601 creation timestamp \\
+		\bottomrule
+	\end{tabularx}
+	
+	% Repeat for each table: vehicles, service_orders, etc.
+	
+	\section{Entity-Relationship Diagram}
+	% Include an ER diagram here (TikZ or imported image).
+	% \begin{figure}[h]
+		%     \centering
+		%     \includegraphics[width=0.85\textwidth]{figures/er_diagram.pdf}
+		%     \caption{Entity-Relationship Diagram}
+		%     \label{fig:er}
+		% \end{figure}
+	
+	\section{Business Rules}
+	% Rules enforced at the database level:
+	% - Cascading deletes (if any)
+	% - Which fields are required vs optional
+	% - Any uniqueness constraints
+	
+	\section{CSV Format}
+	% Document the import/export format precisely.
+	% Column headers, data types, date formats, encoding (UTF-8).
+	
+	\begin{tabularx}{\textwidth}{l l X}
+		\toprule
+		\textbf{Column} & \textbf{Type} & \textbf{Notes} \\
+		\midrule
+		% Fill in for each exported entity
+		\bottomrule
+	\end{tabularx}
+	
+	% =============================================================
+	%  CHAPTER 5 --- BUILD AND RELEASE
+	% =============================================================
+	\chapter{Build and Release}
+	
+	\section{Development Environment Setup}
+	% Prerequisites: Node.js version, Rust toolchain version,
+	% platform-specific Tauri dependencies.
+	% Step-by-step to get a working dev environment.
+	
+	\begin{lstlisting}[language=bash, caption={Install dependencies and start dev server}]
+		npm install
+		npm run tauri dev
+	\end{lstlisting}
+	
+	\section{Build Process}
+	% What happens when you run the production build.
+	% How Vite bundles the frontend, how Tauri compiles Rust,
+	% how the two are packaged together.
+	
+	\begin{lstlisting}[language=bash, caption={Production build}]
+		npm run tauri build
+	\end{lstlisting}
+	
+	\section{Output Artefacts}
+	% Where the binary ends up on each platform.
+	% Windows: .msi or .exe installer
+	% macOS: .dmg or .app
+	% Linux: .deb or AppImage
+	
+	\section{Configuration}
+	% Key settings in tauri.conf.json worth knowing:
+	% app name, version, window size, permissions, plugins enabled.
+	
+	% =============================================================
+	%  CHAPTER 6 --- KNOWN LIMITATIONS
+	% =============================================================
+	\chapter{Known Limitations}
+	
+	% Be honest. E.g.:
+	% - Single-user only, no multi-user support
+	% - No data encryption at rest
+	% - No automatic backup mechanism
+	% - No network/cloud sync
+	% - No authentication layer
+	
+	% =============================================================
+	%  APPENDICES (optional)
+	% =============================================================
+	\appendix
+	
+	\chapter{Glossary}
+	% Define technical terms used in the document.
+	% IPC, Tauri, WebView, SQLite, CRUD, etc.
+	
+	\chapter{References}
+	% Tauri documentation, React docs, SQLite docs, etc.
+	% Use \url{} for links.
+	
+	\begin{itemize}
+		\item Tauri Documentation: \url{https://tauri.app/}
+		\item React Documentation: \url{https://react.dev/}
+		\item SQLite Documentation: \url{https://www.sqlite.org/docs.html}
+	\end{itemize}
+	
+\end{document}
