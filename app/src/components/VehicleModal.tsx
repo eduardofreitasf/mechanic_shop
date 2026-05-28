@@ -9,9 +9,10 @@ interface VehicleModalProps {
   onClose: () => void;
   onSuccess: () => void;
   vehicle?: Vehicle | null;
+  defaultClientId?: number | null;
 }
 
-export function VehicleModal({ isOpen, onClose, onSuccess, vehicle }: VehicleModalProps) {
+export function VehicleModal({ isOpen, onClose, onSuccess, vehicle, defaultClientId }: VehicleModalProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [clientId, setClientId] = useState<string>("");
   const [plate, setPlate] = useState("");
@@ -34,14 +35,14 @@ export function VehicleModal({ isOpen, onClose, onSuccess, vehicle }: VehicleMod
       setModel(vehicle.model);
       setYear(vehicle.year?.toString() || "");
     } else {
-      setClientId("");
+      setClientId(defaultClientId ? defaultClientId.toString() : "");
       setPlate("");
       setBrand("");
       setModel("");
       setYear("");
     }
     setError(null);
-  }, [vehicle, isOpen]);
+  }, [vehicle, isOpen, defaultClientId]);
 
   if (!isOpen) return null;
 

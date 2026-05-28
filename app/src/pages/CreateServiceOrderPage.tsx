@@ -6,6 +6,8 @@ import { clientService } from "../services/clientService";
 import { vehicleService } from "../services/vehicleService";
 import { ServiceOperation, Client, Vehicle } from "../db";
 import { VehicleHistoryOverlay } from "../components/VehicleHistoryOverlay";
+import { ClientModal } from "../components/ClientModal";
+import { VehicleModal } from "../components/VehicleModal";
 
 export function CreateServiceOrderPage() {
   const navigate = useNavigate();
@@ -26,6 +28,35 @@ export function CreateServiceOrderPage() {
   );
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+
+  const handleClientCreated = async () => {
+    try {
+      const updatedClients = await clientService.getClients();
+      setClients(updatedClients);
+      if (updatedClients.length > 0) {
+        const newestClient = updatedClients.reduce((max, c) => c.id > max.id ? c : max, updatedClients[0]);
+        setSelectedClientId(newestClient.id.toString());
+      }
+    } catch (err) {
+      console.error("Erro ao recarregar clientes após criação", err);
+    }
+  };
+
+  const handleVehicleCreated = async () => {
+    if (!selectedClientId) return;
+    try {
+      const updatedVehicles = await vehicleService.getVehiclesByClient(parseInt(selectedClientId));
+      setVehicles(updatedVehicles);
+      if (updatedVehicles.length > 0) {
+        const newestVehicle = updatedVehicles.reduce((max, v) => v.id > max.id ? v : max, updatedVehicles[0]);
+        setSelectedVehicleId(newestVehicle.id.toString());
+      }
+    } catch (err) {
+      console.error("Erro ao recarregar veículos após criação", err);
+    }
+  };
 
   useEffect(() => {
     clientService.getClients().then(setClients);
@@ -108,7 +139,16 @@ export function CreateServiceOrderPage() {
           <h3 style={{ marginBottom: '20px' }}>Informações Gerais</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '24px' }}>
             <div className="form-group">
-              <label>Cliente</label>
+              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                Cliente
+                <button 
+                  type="button" 
+                  onClick={() => setIsClientModalOpen(true)}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}
+                >
+                  + Criar Novo
+                </button>
+              </label>
               <select className="form-input" style={{ width: '100%' }} required value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value)}>
                 <option value="">Selecionar Cliente</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -116,16 +156,27 @@ export function CreateServiceOrderPage() {
             </div>
             <div className="form-group">
               <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                Veículo
-                {selectedVehicleId && (
-                  <button 
-                    type="button" 
-                    onClick={() => setIsHistoryOpen(true)}
-                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <History size={14} /> Ver Histórico
-                  </button>
-                )}
+                <span>Veículo</span>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {selectedClientId && (
+                    <button 
+                      type="button" 
+                      onClick={() => setIsVehicleModalOpen(true)}
+                      style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}
+                    >
+                      + Criar Novo
+                    </button>
+                  )}
+                  {selectedVehicleId && (
+                    <button 
+                      type="button" 
+                      onClick={() => setIsHistoryOpen(true)}
+                      style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <History size={14} /> Ver Histórico
+                    </button>
+                  )}
+                </div>
               </label>
               <select className="form-input" style={{ width: '100%' }} required disabled={!selectedClientId} value={selectedVehicleId} onChange={(e) => setSelectedVehicleId(e.target.value)}>
                 <option value="">Selecionar Veículo</option>
@@ -256,6 +307,19 @@ export function CreateServiceOrderPage() {
         onClose={() => setIsHistoryOpen(false)} 
         vehicleId={parseInt(selectedVehicleId)} 
         vehiclePlate={selectedVehicle?.plate || ""}
+      />
+
+      <ClientModal
+        isOpen={isClientModalOpen}
+        onClose={() => setIsClientModalOpen(false)}
+        onSuccess={handleClientCreated}
+      />
+
+      <VehicleModal
+        isOpen={isVehicleModalOpen}
+        onClose={() => setIsVehicleModalOpen(false)}
+        onSuccess={handleVehicleCreated}
+        defaultClientId={selectedClientId ? parseInt(selectedClientId) : null}
       />
     </div>
   );
